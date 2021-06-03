@@ -1,0 +1,86 @@
+<html>
+ <head></head>
+ <body>
+  <p><strong>Jump search</strong> (also known as <strong>block</strong><strong> search</strong>) is an algorithm for finding the position of an element in a <strong>sorted array.</strong> Unlike the linear search, it doesn't compare each element of an array with the target value. It splits the given array into a sequence of blocks and then jumps over them to find a block that may contain the target element. To do that, the algorithm compares the right borders of blocks with the target element.</p> 
+  <p>If <span class="math-tex">\(n\)</span> is the size of a block, the algorithm performs <span class="math-tex">\(\sqrt n + \sqrt n\)</span> comparisons in the worst case. It means the time complexity is <span class="math-tex">\(O(\sqrt n)\)</span><strong> </strong>that is more efficient than <strong>linear search.</strong></p> 
+  <h2 style="text-align: center;">Implementation in Java</h2> 
+  <p>Let's consider how the algorithm can be implemented in Java. The <code class="language-java">jumpSearch</code> method finds a block where the target element may be presented and then invokes <code class="language-java">backwardSearch</code> to search the element in this block.</p> 
+  <pre><code class="language-java">public static int jumpSearch(int[] array, int target) {
+    int currentRight = 0; // right border of the current block
+    int prevRight = 0; // right border of the previous block
+
+    /* If array is empty, the element is not found */
+    if (array.length == 0) {
+        return -1;
+    }
+
+    /* Check the first element */
+    if (array[currentRight] == target) {
+        return 0;
+    }
+
+    /* Calculating the jump length over array elements */
+    int jumpLength = (int) Math.sqrt(array.length);
+
+    /* Finding a block where the element may be present */
+    while (currentRight &lt; array.length - 1) {
+
+        /* Calculating the right border of the following block */
+        currentRight = Math.min(array.length - 1, currentRight + jumpLength);
+
+        if (array[currentRight] &gt;= target) {
+            break; // Found a block that may contain the target element
+        }
+
+        prevRight = currentRight; // update the previous right block border
+    }
+
+    /* If the last block is reached and it cannot contain the target value =&gt; not found */
+    if ((currentRight == array.length - 1) &amp;&amp; target &gt; array[currentRight]) {
+        return -1;
+    }
+
+    /* Doing linear search in the found block */
+    return backwardSearch(array, target, prevRight, currentRight);
+}
+
+public static int backwardSearch(int[] array, int target, int leftExcl, int rightIncl) {
+    for (int i = rightIncl; i &gt; leftExcl; i--) {
+        if (array[i] == target) {
+            return i;
+        }
+    }
+    return -1;
+}</code></pre> 
+  <p>This implementation may look a little cumbersome, but it has its advantages:</p> 
+  <ul> 
+   <li>if the array is empty, it immediately returns the result (not found);</li> 
+   <li>if the first element matches the target, it immediately returns the result (found);</li> 
+   <li>if the target is not found in the block in which it could be present, the algorithm doesn't search in the remaining blocks which cannot contain the target (it relies on the fact that the input array is sorted).</li> 
+  </ul> 
+  <h2>Usage examples</h2> 
+  <p>Let's see an example of how the method works:</p> 
+  <pre><code class="language-java">int[] array = { 10, 13, 19, 20, 24, 26, 30, 34, 35 };
+
+jumpSearch(array, 10); // 0
+jumpSearch(array, 13); // 1
+jumpSearch(array, 19); // 2
+jumpSearch(array, 20); // 3
+jumpSearch(array, 24); // 4
+jumpSearch(array, 26); // 5
+jumpSearch(array, 30); // 6
+jumpSearch(array, 34); // 7
+jumpSearch(array, 35); // 8
+
+jumpSearch(array, -10); // -1
+jumpSearch(array, 11);  // -1
+jumpSearch(array, 27);  // -1
+jumpSearch(array, 37);  // -1</code></pre> 
+  <p>So, we found all the elements of the array and did not find the missing ones.</p> 
+  <p>If you do not quite understand the algorithm, run these tests in the debug mode.</p> 
+  <h2 style="text-align: center;">A faster jump search algorithm</h2> 
+  <p>In the presented algorithm, once we have found the block that may contain the target value, we perform the backward linear search. But we could perform another jump search within the block (backward or forward)! And then recursively perform jump search until we are left with only one element.</p> 
+  <p>This version will perform <span class="math-tex">\(\sqrt n + \sqrt[4] n + \sqrt[8] n + ... + 1\)</span> comparisons in the worst case. It's faster than the base implementation but is still <span class="math-tex">\(O(\sqrt n)\)</span>.</p> 
+  <p>You can try to implement this algorithm if you'd like.</p>
+ </body>
+</html>
